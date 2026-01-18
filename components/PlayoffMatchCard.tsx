@@ -27,9 +27,9 @@ function TeamRow({
 }) {
     if (!team) {
         return (
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-mexico/5 border border-dashed border-mexico/20">
-                <HelpCircle className="w-5 h-5 text-muted-foreground/40" />
-                <span className="text-sm text-muted-foreground/50 italic">Por definir</span>
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-gray-50 border border-dashed border-gray-200">
+                <HelpCircle className="w-5 h-5 text-gray-300" />
+                <span className="text-sm text-gray-400 italic">Por definir</span>
             </div>
         );
     }
@@ -43,10 +43,10 @@ function TeamRow({
             className={`
         w-full flex items-center gap-2 p-2.5 rounded-lg transition-all duration-300
         ${isWinner
-                    ? 'bg-linear-to-r from-gold/20 to-gold/10 border-2 border-gold shadow-lg shadow-gold/20'
+                    ? 'bg-amber-50 border-2 border-amber-500 shadow-lg shadow-amber-500/20'
                     : isLoser
-                        ? 'bg-mexico/5 border border-mexico/10 opacity-40 scale-95'
-                        : 'bg-mexico/5 border border-mexico/20 hover:border-gold/50 hover:bg-gold/5'
+                        ? 'bg-gray-50 border border-gray-200 opacity-40 scale-95'
+                        : 'bg-gray-50 border border-gray-200 hover:border-amber-300 hover:bg-amber-50/50'
                 }
         ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
       `}
@@ -56,27 +56,27 @@ function TeamRow({
                     src={getFlagUrl(team.team.code, 40)}
                     alt={team.team.name}
                     className={`w-7 h-5 object-cover rounded shadow-sm transition-all
-                        ${isWinner ? 'ring-2 ring-gold ring-offset-1 ring-offset-transparent' : ''}`}
+                        ${isWinner ? 'ring-2 ring-amber-500 ring-offset-1 ring-offset-transparent' : ''}`}
                     loading="lazy"
                 />
                 {isWinner && (
                     <motion.div
                         initial={{ scale: 0, rotate: -45 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gold rounded-full flex items-center justify-center"
+                        className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center"
                     >
-                        <Trophy className="w-2.5 h-2.5 text-gold-dark" />
+                        <Trophy className="w-2.5 h-2.5 text-white" />
                     </motion.div>
                 )}
             </div>
             <span className={`flex-1 text-sm font-medium truncate text-left transition-colors
-                ${isWinner ? 'text-gold font-bold' : ''}`}>
+                ${isWinner ? 'text-amber-600 font-bold' : ''}`}>
                 {team.team.name}
             </span>
             <span className={`text-[10px] px-1.5 py-0.5 rounded whitespace-nowrap transition-colors
                 ${isWinner
-                    ? 'bg-gold/20 text-gold font-semibold'
-                    : 'bg-mexico/10 text-muted-foreground'
+                    ? 'bg-amber-100 text-amber-600 font-semibold'
+                    : 'bg-gray-100 text-gray-500'
                 }`}>
                 {team.originLabel || `${team.position}° ${team.group}`}
             </span>
@@ -86,7 +86,7 @@ function TeamRow({
                     animate={{ scale: 1 }}
                     transition={{ type: 'spring', stiffness: 500 }}
                 >
-                    <Check className="w-4 h-4 text-gold" />
+                    <Check className="w-4 h-4 text-amber-500" />
                 </motion.div>
             )}
         </motion.button>
@@ -109,17 +109,17 @@ export function PlayoffMatchCard({ match, onSelectWinner, compact = false }: Pla
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2 }}
         >
-            <Card className={`overflow-hidden ${compact ? 'p-2' : 'p-3'} glass-card backdrop-blur-xl border-mexico/20`}>
+            <Card className={`relative overflow-hidden ${compact ? 'p-2' : 'p-3'} bg-white border-gray-100 shadow-sm ${match.winner ? 'border-amber-200' : ''}`}>
                 {/* Match ID Badge */}
                 <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                         Partido {match.position}
                     </span>
                     {match.winner && (
                         <motion.span
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="text-[10px] font-bold text-gold bg-gold/15 px-2 py-0.5 rounded-full flex items-center gap-1"
+                            className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full flex items-center gap-1"
                         >
                             <Trophy className="w-3 h-3" />
                             Decidido
@@ -145,12 +145,12 @@ export function PlayoffMatchCard({ match, onSelectWinner, compact = false }: Pla
                     />
                 </div>
 
-                {/* Golden indicator when decided */}
+                {/* Gold indicator when decided */}
                 {match.winner && (
                     <motion.div
                         initial={{ scaleX: 0 }}
                         animate={{ scaleX: 1 }}
-                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-linear-to-r from-mexico via-gold to-canada"
+                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-linear-to-r from-amber-400 via-amber-500 to-amber-600"
                     />
                 )}
             </Card>

@@ -9,7 +9,6 @@ import {
     getAllGroupMatches,
     getTeamByCode,
     getFlagUrl,
-    GROUPS
 } from '@/lib/worldCupData';
 
 const containerVariants = {
@@ -28,10 +27,8 @@ const itemVariants = {
 };
 
 export function UpcomingMatches() {
-    // Get first 6 matches from the groups (sample of upcoming matches)
     const upcomingMatches = useMemo(() => {
         const allMatches = getAllGroupMatches();
-        // Get first 2 matches from first 3 groups
         return allMatches.slice(0, 6);
     }, []);
 
@@ -39,14 +36,14 @@ export function UpcomingMatches() {
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-mexico/15 flex items-center justify-center">
-                        <Calendar className="h-4 w-4 text-mexico" />
+                    <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
+                        <Calendar className="h-4 w-4 text-emerald-700" />
                     </div>
-                    <h2 className="text-lg font-bold">Próximos Partidos</h2>
+                    <h2 className="text-lg font-bold text-gray-900">Próximos Partidos</h2>
                 </div>
                 <Link
                     href="/prode"
-                    className="flex items-center gap-1 text-sm text-gold hover:text-gold/80 transition-colors font-medium"
+                    className="flex items-center gap-1 text-sm text-emerald-700 hover:text-green-700 transition-colors font-medium"
                 >
                     Ver todos
                     <ChevronRight className="h-4 w-4" />
@@ -59,7 +56,7 @@ export function UpcomingMatches() {
                 animate="show"
                 className="space-y-2"
             >
-                {upcomingMatches.map((match, index) => {
+                {upcomingMatches.map((match) => {
                     const homeTeam = getTeamByCode(match.homeTeam);
                     const awayTeam = getTeamByCode(match.awayTeam);
 
@@ -68,7 +65,7 @@ export function UpcomingMatches() {
                     return (
                         <motion.div key={match.id} variants={itemVariants}>
                             <Link href="/prode">
-                                <Card className="p-3 glass-card hover:border-gold/30 transition-all duration-300 cursor-pointer border-mexico/20 group">
+                                <Card className="p-3 bg-white hover:bg-gray-50 transition-all duration-300 cursor-pointer border-gray-100 group shadow-sm">
                                     <div className="flex items-center justify-between">
                                         {/* Home Team */}
                                         <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -78,24 +75,24 @@ export function UpcomingMatches() {
                                                 className="w-7 h-5 object-cover rounded shadow-sm"
                                                 loading="lazy"
                                             />
-                                            <span className="text-sm font-medium truncate">
+                                            <span className="text-sm font-medium truncate text-gray-900">
                                                 {homeTeam.name}
                                             </span>
                                         </div>
 
                                         {/* VS Badge */}
                                         <div className="px-3 flex flex-col items-center">
-                                            <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wide">
+                                            <span className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
                                                 Grupo {match.group}
                                             </span>
-                                            <span className="text-xs font-bold text-gold group-hover:scale-110 transition-transform">
+                                            <span className="text-xs font-bold text-emerald-700 group-hover:scale-110 transition-transform">
                                                 VS
                                             </span>
                                         </div>
 
                                         {/* Away Team */}
                                         <div className="flex items-center gap-2.5 flex-1 min-w-0 justify-end">
-                                            <span className="text-sm font-medium truncate text-right">
+                                            <span className="text-sm font-medium truncate text-right text-gray-900">
                                                 {awayTeam.name}
                                             </span>
                                             <img
@@ -113,14 +110,14 @@ export function UpcomingMatches() {
                 })}
             </motion.div>
 
-            {/* CTA to see all matches */}
+            {/* CTA */}
             <Link href="/prode">
                 <motion.div
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
-                    className="w-full p-3 rounded-xl bg-linear-to-r from-gold/10 via-gold/15 to-gold/10 border border-gold/30 text-center cursor-pointer hover:shadow-lg hover:shadow-gold/10 transition-all duration-300"
+                    className="w-full p-3 rounded-xl bg-emerald-600 text-center cursor-pointer hover:bg-emerald-700 transition-all duration-300 shadow-lg shadow-emerald-600/25"
                 >
-                    <span className="text-sm font-semibold text-gold flex items-center justify-center gap-2">
+                    <span className="text-sm font-semibold text-white flex items-center justify-center gap-2">
                         <Swords className="w-4 h-4" />
                         Simular todos los grupos
                         <ChevronRight className="w-4 h-4" />

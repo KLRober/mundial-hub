@@ -265,7 +265,7 @@ export default function ImpostorGame() {
                     >
                         <div className={`p-8 rounded-full inline-block ${votedPlayer === impostorIndex ? 'bg-green-100' : 'bg-red-100'}`}>
                             {votedPlayer === impostorIndex ? (
-                                <PartyPopper className="w-16 h-16 text-green-600" />
+                                <PartyPopper className="w-16 h-16 text-emerald-700" />
                             ) : (
                                 <AlertTriangle className="w-16 h-16 text-red-600" />
                             )}

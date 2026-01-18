@@ -179,10 +179,10 @@ export default function PerfilPage() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
-                                    className="mt-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-center"
+                                    className="mt-6 p-4 rounded-xl bg-emerald-600/10 border border-emerald-600/20 text-center"
                                 >
-                                    <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                                    <p className="font-medium text-green-600">¡Link enviado!</p>
+                                    <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                                    <p className="font-medium text-emerald-700">¡Link enviado!</p>
                                     <p className="text-sm text-muted-foreground mt-1">
                                         Revisa tu bandeja de entrada en <strong>{email}</strong>
                                     </p>

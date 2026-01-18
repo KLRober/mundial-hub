@@ -140,7 +140,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                         {!isFinished && (
                             <Button
                                 size="sm"
-                                className={`h-7 text-xs px-3 ${hasPredicted ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                                className={`h-7 text-xs px-3 ${hasPredicted ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
                                 onClick={handleSavePrediction}
                                 disabled={isSaving || (predLocal === '' || predVisitante === '')}
                             >

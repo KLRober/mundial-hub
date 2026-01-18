@@ -182,9 +182,9 @@ export default function ProdePage() {
     };
 
     return (
-        <div className="min-h-screen pb-24">
-            {/* Header with Host Country Gradient */}
-            <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80">
+        <div className="min-h-screen pb-24 bg-white">
+            {/* Header */}
+            <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/90 border-b border-gray-100">
                 <div className="px-4 py-4 space-y-4">
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
@@ -192,16 +192,19 @@ export default function ProdePage() {
                         className="flex items-center justify-between"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-gold/20 to-mexico/20 flex items-center justify-center border border-gold/30">
-                                <Trophy className="w-5 h-5 text-gold" />
+                            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                                <Trophy className="w-5 h-5 text-amber-500" />
                             </div>
                             <div>
-                                <h1 className="text-lg font-bold text-gold">Simulador</h1>
-                                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-mexico"></span>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-usa"></span>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-canada"></span>
-                                    Mundial 2026
+                                <h1 className="text-lg font-bold text-gray-900">Predicciones</h1>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                    {/* Minimalist Flags */}
+                                    <span className="inline-block w-4 h-2.5 rounded-sm overflow-hidden" style={{ background: 'linear-gradient(90deg, #006847 33%, white 33% 66%, #ce1126 66%)' }}></span>
+                                    <span className="inline-block w-4 h-2.5 rounded-sm overflow-hidden relative" style={{ background: 'linear-gradient(180deg, #b22234 0, #b22234 15%, white 15%, white 30%, #b22234 30%, #b22234 45%, white 45%, white 60%, #b22234 60%, #b22234 75%, white 75%, white 90%, #b22234 90%)' }}>
+                                        <span className="absolute top-0 left-0 w-1.5 h-1 bg-[#3c3b6e]"></span>
+                                    </span>
+                                    <span className="inline-block w-4 h-2.5 rounded-sm overflow-hidden" style={{ background: 'linear-gradient(90deg, #ff0000 25%, white 25% 75%, #ff0000 75%)' }}></span>
+                                    <span className="text-gray-400">2026</span>
                                 </p>
                             </div>
                         </div>
@@ -211,12 +214,12 @@ export default function ProdePage() {
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 {user ? (
                                     <>
-                                        <Cloud className="w-4 h-4 text-mexico" />
+                                        <Cloud className="w-4 h-4 text-emerald-600" />
                                         <span className="hidden sm:inline">Sincronizado</span>
                                     </>
                                 ) : (
                                     <>
-                                        <CloudOff className="w-4 h-4 text-gold" />
+                                        <CloudOff className="w-4 h-4 text-amber-500" />
                                         <span className="hidden sm:inline">Local</span>
                                     </>
                                 )}
@@ -224,13 +227,13 @@ export default function ProdePage() {
                         )}
                     </motion.div>
 
-                    {/* Phase Switcher - Premium Style */}
-                    <div className="flex p-1 bg-mexico/10 rounded-xl border border-mexico/20">
+                    {/* Phase Switcher */}
+                    <div className="flex p-1 bg-gray-100 rounded-xl">
                         <button
                             onClick={() => setPhase('groups')}
                             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${phase === 'groups'
-                                ? 'bg-linear-to-r from-gold to-gold text-gold-dark shadow-lg shadow-gold/25'
-                                : 'text-muted-foreground hover:text-gold'
+                                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/25'
+                                : 'text-gray-500 hover:text-emerald-700'
                                 }`}
                         >
                             <Grid3X3 className="w-4 h-4" />
@@ -239,8 +242,8 @@ export default function ProdePage() {
                         <button
                             onClick={() => setPhase('playoffs')}
                             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${phase === 'playoffs'
-                                ? 'bg-linear-to-r from-gold to-gold text-gold-dark shadow-lg shadow-gold/25'
-                                : 'text-muted-foreground hover:text-gold'
+                                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/25'
+                                : 'text-gray-500 hover:text-emerald-700'
                                 }`}
                         >
                             <Trophy className="w-4 h-4" />
@@ -248,8 +251,8 @@ export default function ProdePage() {
                         </button>
                     </div>
                 </div>
-                {/* Host Country Gradient Border */}
-                <div className="h-[3px] bg-linear-to-r from-mexico via-usa to-canada" />
+                {/* Subtle gradient border */}
+                <div className="h-[2px] bg-linear-to-r from-emerald-500 via-emerald-600 to-emerald-700 opacity-60" />
             </header>
 
             {/* Guest Warning */}

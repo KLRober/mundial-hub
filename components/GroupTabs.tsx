@@ -10,7 +10,7 @@ interface GroupTabsProps {
 
 export function GroupTabs({ activeGroup, onSelect }: GroupTabsProps) {
     return (
-        <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl">
+        <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-gray-100">
             <div className="flex gap-1.5 overflow-x-auto px-4 py-3 scrollbar-hide">
                 {GROUPS.map(group => {
                     const isActive = activeGroup === group;
@@ -21,15 +21,15 @@ export function GroupTabs({ activeGroup, onSelect }: GroupTabsProps) {
                             onClick={() => onSelect(group)}
                             className={`relative px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap
                 ${isActive
-                                    ? 'text-gold-dark'
-                                    : 'text-muted-foreground hover:text-gold hover:bg-gold/10'
+                                    ? 'text-white'
+                                    : 'text-gray-500 hover:text-emerald-700 hover:bg-emerald-50'
                                 }
               `}
                         >
                             {isActive && (
                                 <motion.div
                                     layoutId="activeGroupTab"
-                                    className="absolute inset-0 bg-linear-to-r from-gold to-gold rounded-xl shadow-lg shadow-gold/25"
+                                    className="absolute inset-0 bg-emerald-600 rounded-xl shadow-lg shadow-emerald-600/25"
                                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                                 />
                             )}
@@ -41,8 +41,6 @@ export function GroupTabs({ activeGroup, onSelect }: GroupTabsProps) {
                     );
                 })}
             </div>
-            {/* Subtle bottom border */}
-            <div className="h-[1px] bg-linear-to-r from-transparent via-mexico/30 to-transparent" />
         </div>
     );
 }

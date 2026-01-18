@@ -55,13 +55,13 @@ export function GroupStandings({ standings, previousStandings }: GroupStandingsP
                                     opacity: { duration: 0.2 }
                                 }}
                                 className={`grid grid-cols-[32px_1fr_28px_28px_28px_28px_36px_36px_36px_36px] gap-1 px-3 py-2.5 items-center text-xs
-                  ${isQualified ? 'bg-green-500/10' : 'bg-transparent'}
+                  ${isQualified ? 'bg-emerald-600/10' : 'bg-transparent'}
                   transition-colors duration-300
                 `}
                             >
                                 {/* Position with indicator */}
                                 <div className="flex items-center justify-center gap-0.5">
-                                    <span className={`font-bold ${isQualified ? 'text-green-600' : ''}`}>
+                                    <span className={`font-bold ${isQualified ? 'text-emerald-700' : ''}`}>
                                         {standing.position}
                                     </span>
                                     {positionChange !== 0 && (
@@ -71,7 +71,7 @@ export function GroupStandings({ standings, previousStandings }: GroupStandingsP
                                             exit={{ opacity: 0, scale: 0.5 }}
                                         >
                                             {positionChange > 0 ? (
-                                                <ChevronUp className="w-3 h-3 text-green-500" />
+                                                <ChevronUp className="w-3 h-3 text-emerald-600" />
                                             ) : (
                                                 <ChevronDown className="w-3 h-3 text-red-500" />
                                             )}
@@ -97,7 +97,7 @@ export function GroupStandings({ standings, previousStandings }: GroupStandingsP
                                 <span className="text-center text-muted-foreground">{standing.lost}</span>
                                 <span className="text-center">{standing.goalsFor}</span>
                                 <span className="text-center">{standing.goalsAgainst}</span>
-                                <span className={`text-center font-medium ${standing.goalDiff > 0 ? 'text-green-600' :
+                                <span className={`text-center font-medium ${standing.goalDiff > 0 ? 'text-emerald-700' :
                                         standing.goalDiff < 0 ? 'text-red-500' : ''
                                     }`}>
                                     {standing.goalDiff > 0 ? '+' : ''}{standing.goalDiff}
@@ -112,7 +112,7 @@ export function GroupStandings({ standings, previousStandings }: GroupStandingsP
             {/* Legend */}
             <div className="px-3 py-2 bg-muted/20 border-t border-border/30">
                 <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <span className="w-2 h-2 rounded-full bg-green-500/50"></span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-600/50"></span>
                     <span>Clasificado a la siguiente fase</span>
                 </div>
             </div>

@@ -1,102 +1,109 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Check, Goal } from 'lucide-react';
+import { Goal, Check, Save } from 'lucide-react';
 
 interface FloatingSaveButtonProps {
     hasChanges: boolean;
-    onSave: () => void;
     isSaving: boolean;
-    isSaved?: boolean;
+    isSaved: boolean;
+    onSave: () => void;
 }
 
 export function FloatingSaveButton({
     hasChanges,
-    onSave,
     isSaving,
-    isSaved = false
+    isSaved,
+    onSave,
 }: FloatingSaveButtonProps) {
+    const isVisible = hasChanges || isSaving || isSaved;
+
     return (
         <AnimatePresence>
-            {(hasChanges || isSaving || isSaved) && (
+            {isVisible && (
                 <motion.div
-                    initial={{ y: 100, opacity: 0, scale: 0.8 }}
-                    animate={{ y: 0, opacity: 1, scale: 1 }}
-                    exit={{ y: 100, opacity: 0, scale: 0.8 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                    className="fixed bottom-20 right-4 z-999"
+                    initial={{ y: 100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 100, opacity: 0 }}
+                    className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40"
                 >
-                    <button
+                    <motion.button
+                        whileHover={!isSaving && !isSaved ? { scale: 1.05 } : undefined}
+                        whileTap={!isSaving && !isSaved ? { scale: 0.95 } : undefined}
                         onClick={onSave}
                         disabled={isSaving || isSaved}
                         className={`flex items-center gap-2 px-5 py-3 rounded-full font-semibold shadow-lg 
                        transition-all duration-300 
                        ${isSaved
-                                ? 'bg-mexico text-white shadow-mexico/40'
-                                : 'bg-linear-to-r from-gold to-gold text-gold-dark shadow-gold/40 hover:shadow-gold/60 hover:scale-105 gold-glow'
+                                ? 'bg-emerald-600 text-white shadow-emerald-600/40'
+                                : 'bg-emerald-600 text-white shadow-emerald-600/40 hover:shadow-emerald-600/60 hover:bg-emerald-700'
                             }
                        disabled:cursor-not-allowed`}
                     >
-                        {isSaving ? (
-                            <>
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                                <span>Guardando...</span>
-                            </>
-                        ) : isSaved ? (
-                            <>
+                        <AnimatePresence mode="wait">
+                            {isSaving ? (
                                 <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ type: 'spring', stiffness: 500 }}
+                                    key="saving"
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    exit={{ scale: 0 }}
+                                    className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                                />
+                            ) : isSaved ? (
+                                <motion.div
+                                    key="saved"
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    exit={{ scale: 0 }}
                                 >
                                     <Check className="w-5 h-5" />
                                 </motion.div>
-                                <span>¡Gooool!</span>
-                            </>
-                        ) : (
-                            <>
+                            ) : (
                                 <motion.div
-                                    animate={{
-                                        rotate: [0, -10, 10, -10, 0],
-                                        scale: [1, 1.1, 1]
-                                    }}
-                                    transition={{
-                                        duration: 0.5,
-                                        repeat: Infinity,
-                                        repeatDelay: 2
-                                    }}
+                                    key="goal"
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    exit={{ scale: 0 }}
                                 >
-                                    <Goal className="w-5 h-5" />
+                                    <Save className="w-5 h-5" />
                                 </motion.div>
-                                <span>Guardar Predicciones</span>
-                            </>
-                        )}
-                    </button>
+                            )}
+                        </AnimatePresence>
 
-                    {/* Celebration particles on save */}
+                        <span>
+                            {isSaving ? 'Guardando...' : isSaved ? '¡Guardado!' : 'Guardar'}
+                        </span>
+                    </motion.button>
+
+                    {/* Success particles */}
                     {isSaved && (
                         <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
                             className="absolute inset-0 pointer-events-none"
-                            initial={{ opacity: 1 }}
-                            animate={{ opacity: 0 }}
-                            transition={{ duration: 1 }}
                         >
-                            {[...Array(8)].map((_, i) => (
+                            {[...Array(6)].map((_, i) => (
                                 <motion.div
                                     key={i}
-                                    className="absolute w-2 h-2 rounded-full bg-gold"
+                                    className="absolute w-2 h-2 rounded-full bg-emerald-500"
                                     style={{
                                         left: '50%',
                                         top: '50%',
                                     }}
-                                    initial={{ x: 0, y: 0, scale: 1 }}
-                                    animate={{
-                                        x: Math.cos((i * Math.PI * 2) / 8) * 60,
-                                        y: Math.sin((i * Math.PI * 2) / 8) * 60,
-                                        scale: 0,
-                                        opacity: 0
+                                    initial={{
+                                        x: 0,
+                                        y: 0,
+                                        opacity: 1,
                                     }}
-                                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                                    animate={{
+                                        x: Math.cos((i * 60 * Math.PI) / 180) * 50,
+                                        y: Math.sin((i * 60 * Math.PI) / 180) * 50,
+                                        opacity: 0,
+                                    }}
+                                    transition={{
+                                        duration: 0.6,
+                                        ease: 'easeOut',
+                                    }}
                                 />
                             ))}
                         </motion.div>
