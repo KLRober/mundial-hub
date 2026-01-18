@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { GroupStandings } from './GroupStandings';
 import { SimulatorMatchCard } from './SimulatorMatchCard';
@@ -9,57 +9,46 @@ import {
     generateGroupMatches,
     getTeamByCode,
     type GroupMatch,
-    type WorldCupTeam
 } from '@/lib/worldCupData';
-import { calculateStandings, getInitialStandings } from '@/lib/calculateStandings';
+import { calculateStandings } from '@/lib/calculateStandings';
 import type { TeamStanding, GroupPredictions } from '@/types/groupStandings';
 
 interface GroupBlockProps {
     group: string;
-    initialPredictions?: GroupPredictions;
-    onPredictionsChange?: (predictions: GroupPredictions) => void;
+    allPredictions: GroupPredictions;
+    onPredictionChange: (matchId: string, homeGoals: number | null, awayGoals: number | null) => void;
 }
 
-export function GroupBlock({ group, initialPredictions = {}, onPredictionsChange }: GroupBlockProps) {
-    const teams = getTeamsByGroup(group);
-    const matches = generateGroupMatches(group);
+export function GroupBlock({ group, allPredictions, onPredictionChange }: GroupBlockProps) {
+    const teams = useMemo(() => getTeamsByGroup(group), [group]);
+    const matches = useMemo(() => generateGroupMatches(group), [group]);
 
-    const [predictions, setPredictions] = useState<GroupPredictions>(initialPredictions);
-    const [standings, setStandings] = useState<TeamStanding[]>(() => getInitialStandings(teams));
+    // Calculate standings based on predictions for this group
+    const standings = useMemo(() => {
+        const groupPredictions: GroupPredictions = {};
+        matches.forEach(match => {
+            if (allPredictions[match.id]) {
+                groupPredictions[match.id] = allPredictions[match.id];
+            }
+        });
+        return calculateStandings(teams, matches, groupPredictions);
+    }, [teams, matches, allPredictions]);
+
+    // Track previous standings for animations
     const [previousStandings, setPreviousStandings] = useState<TeamStanding[] | undefined>();
 
-    // Recalculate standings when predictions change
     useEffect(() => {
-        const newStandings = calculateStandings(teams, matches, predictions);
         setPreviousStandings(standings);
-        setStandings(newStandings);
-    }, [predictions]);
-
-    // Notify parent of prediction changes
-    useEffect(() => {
-        onPredictionsChange?.(predictions);
-    }, [predictions, onPredictionsChange]);
-
-    const handlePredictionChange = useCallback((matchId: string, homeGoals: number | null, awayGoals: number | null) => {
-        setPredictions(prev => {
-            if (homeGoals === null || awayGoals === null) {
-                const newPreds = { ...prev };
-                delete newPreds[matchId];
-                return newPreds;
-            }
-            return {
-                ...prev,
-                [matchId]: { home: homeGoals, away: awayGoals }
-            };
-        });
-    }, []);
+    }, [group]); // Reset when group changes
 
     // Group matches by matchday
-    const matchesByDay = matches.reduce((acc, match) => {
-        if (!acc[match.matchday]) acc[match.matchday] = [];
-        acc[match.matchday].push(match);
-        return acc;
-    }, {} as Record<number, GroupMatch[]>);
+    const matchesByDay = useMemo(() => {
+        return matches.reduce((acc, match) => {
+            if (!acc[match.matchday]) acc[match.matchday] = [];
+            acc[match.matchday].push(match);
+            return acc;
+        }, {} as Record<number, GroupMatch[]>);
+    }, [matches]);
 
     return (
         <motion.div
@@ -92,17 +81,19 @@ export function GroupBlock({ group, initialPredictions = {}, onPredictionsChange
                             {matchesByDay[matchday]?.map(match => {
                                 const homeTeam = getTeamByCode(match.homeTeam);
                                 const awayTeam = getTeamByCode(match.awayTeam);
-                                const prediction = predictions[match.id];
+                                const prediction = allPredictions[match.id];
+
+                                if (!homeTeam || !awayTeam) return null;
 
                                 return (
                                     <SimulatorMatchCard
                                         key={match.id}
                                         matchId={match.id}
-                                        homeTeam={homeTeam!}
-                                        awayTeam={awayTeam!}
+                                        homeTeam={homeTeam}
+                                        awayTeam={awayTeam}
                                         homeGoals={prediction?.home ?? null}
                                         awayGoals={prediction?.away ?? null}
-                                        onPredictionChange={(home: number | null, away: number | null) => handlePredictionChange(match.id, home, away)}
+                                        onPredictionChange={(home, away) => onPredictionChange(match.id, home, away)}
                                     />
                                 );
                             })}

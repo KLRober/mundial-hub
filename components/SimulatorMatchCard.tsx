@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from './ui/card';
 import { getFlagUrl, type WorldCupTeam } from '@/lib/worldCupData';
@@ -22,21 +22,32 @@ export function SimulatorMatchCard({
     awayGoals,
     onPredictionChange,
 }: SimulatorMatchCardProps) {
-    const handleHomeChange = useCallback((value: string) => {
-        const parsed = value === '' ? null : parseInt(value, 10);
-        if (parsed !== null && (isNaN(parsed) || parsed < 0 || parsed > 20)) return;
-        onPredictionChange(parsed, awayGoals);
-    }, [awayGoals, onPredictionChange]);
 
-    const handleAwayChange = useCallback((value: string) => {
-        const parsed = value === '' ? null : parseInt(value, 10);
-        if (parsed !== null && (isNaN(parsed) || parsed < 0 || parsed > 20)) return;
-        onPredictionChange(homeGoals, parsed);
-    }, [homeGoals, onPredictionChange]);
+    const handleHomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        // Allow empty or digits only
+        if (value !== '' && !/^\d+$/.test(value)) return;
+        if (value.length > 2) return;
+
+        const numValue = value === '' ? null : parseInt(value, 10);
+        onPredictionChange(numValue, awayGoals);
+    };
+
+    const handleAwayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        // Allow empty or digits only
+        if (value !== '' && !/^\d+$/.test(value)) return;
+        if (value.length > 2) return;
+
+        const numValue = value === '' ? null : parseInt(value, 10);
+        onPredictionChange(homeGoals, numValue);
+    };
 
     const hasResult = homeGoals !== null && awayGoals !== null;
-    const homeWins = hasResult && homeGoals! > awayGoals!;
-    const awayWins = hasResult && awayGoals! > homeGoals!;
+    const homeWins = hasResult && homeGoals > awayGoals;
+    const awayWins = hasResult && awayGoals > homeGoals;
 
     return (
         <motion.div
@@ -62,30 +73,34 @@ export function SimulatorMatchCard({
                     {/* Score Inputs */}
                     <div className="flex items-center gap-2">
                         <input
-                            type="number"
-                            min="0"
-                            max="20"
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={2}
                             value={homeGoals ?? ''}
-                            onChange={(e) => handleHomeChange(e.target.value)}
-                            className="w-10 h-10 text-center text-lg font-bold rounded-lg 
+                            onChange={handleHomeChange}
+                            onFocus={(e) => e.target.select()}
+                            className="w-12 h-12 text-center text-xl font-bold rounded-lg 
                          bg-primary/10 border-2 border-primary/30 
                          focus:border-primary focus:bg-primary/20 focus:outline-none
                          transition-all duration-200
-                         placeholder:text-muted-foreground/50"
+                         placeholder:text-muted-foreground/40"
                             placeholder="-"
                         />
-                        <span className="text-muted-foreground font-medium">:</span>
+                        <span className="text-muted-foreground font-bold text-lg">:</span>
                         <input
-                            type="number"
-                            min="0"
-                            max="20"
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={2}
                             value={awayGoals ?? ''}
-                            onChange={(e) => handleAwayChange(e.target.value)}
-                            className="w-10 h-10 text-center text-lg font-bold rounded-lg 
+                            onChange={handleAwayChange}
+                            onFocus={(e) => e.target.select()}
+                            className="w-12 h-12 text-center text-xl font-bold rounded-lg 
                          bg-primary/10 border-2 border-primary/30 
                          focus:border-primary focus:bg-primary/20 focus:outline-none
                          transition-all duration-200
-                         placeholder:text-muted-foreground/50"
+                         placeholder:text-muted-foreground/40"
                             placeholder="-"
                         />
                     </div>
@@ -109,7 +124,7 @@ export function SimulatorMatchCard({
                     <motion.div
                         initial={{ scaleX: 0 }}
                         animate={{ scaleX: 1 }}
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-primary via-secondary to-primary"
+                        className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-primary via-secondary to-primary"
                     />
                 )}
             </Card>

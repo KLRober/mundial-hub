@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Trophy, Gamepad2, TrendingUp } from 'lucide-react';
-import { MatchFeed } from '@/components/MatchFeed';
+import { UpcomingMatches } from '@/components/UpcomingMatches';
 import { Leaderboard } from '@/components/Leaderboard';
 import { Button } from '@/components/ui/button';
 
@@ -24,12 +25,14 @@ export default function Home() {
               <p className="text-xs text-muted-foreground">2026 Edition</p>
             </div>
             <div className="flex items-center gap-2">
-              <Button size="sm" variant="ghost" className="relative">
-                <Trophy className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-[10px] font-bold rounded-full flex items-center justify-center">
-                  3
-                </span>
-              </Button>
+              <Link href="/ranking">
+                <Button size="sm" variant="ghost" className="relative">
+                  <Trophy className="h-5 w-5" />
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-[10px] font-bold rounded-full flex items-center justify-center">
+                    3
+                  </span>
+                </Button>
+              </Link>
             </div>
           </motion.div>
         </div>
@@ -53,27 +56,31 @@ export default function Home() {
               Predice los resultados y compite con tus amigos por premios exclusivos.
             </p>
             <div className="flex gap-2">
-              <Button size="sm" className="bg-primary hover:bg-primary/90">
-                <TrendingUp className="h-4 w-4 mr-1.5" />
-                Hacer Predicción
-              </Button>
-              <Button size="sm" variant="outline">
-                <Gamepad2 className="h-4 w-4 mr-1.5" />
-                Minijuegos
-              </Button>
+              <Link href="/prode">
+                <Button size="sm" className="bg-primary hover:bg-primary/90">
+                  <TrendingUp className="h-4 w-4 mr-1.5" />
+                  Hacer Predicción
+                </Button>
+              </Link>
+              <Link href="/juegos">
+                <Button size="sm" variant="outline">
+                  <Gamepad2 className="h-4 w-4 mr-1.5" />
+                  Minijuegos
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
       </motion.section>
 
-      {/* Match Feed */}
+      {/* Upcoming Matches */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="px-4 pb-6"
       >
-        <MatchFeed />
+        <UpcomingMatches />
       </motion.section>
 
       {/* Leaderboard */}
@@ -85,8 +92,6 @@ export default function Home() {
       >
         <Leaderboard />
       </motion.section>
-
-
     </div>
   );
 }
