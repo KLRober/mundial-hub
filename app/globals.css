@@ -44,91 +44,114 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  
+  /* Host Country & Accent Colors */
+  --color-mexico: #1a6b4a;
+  --color-usa: #002868;
+  --color-canada: #bf0a30;
+  --color-gold: #c9a227;
+  --color-gold-dark: #1a1000;
 }
 
 :root {
   --radius: 0.625rem;
   
-  /* Mundial Hub Color Palette */
-  /* color1: #71dbd2 (teal) - Primary */
-  /* color2: #eeffdb (mint cream) - Background */
-  /* color3: #ade4b5 (soft green) - Secondary */
-  /* color4: #d0eaa3 (lime) - Accent */
-  /* color5: #fff18c (yellow) - Highlight */
+  /* Mundial 2026 Accent Colors */
+  --mexico: #1a6b4a;
+  --usa: #002868;
+  --canada: #bf0a30;
+  --gold: #c9a227;
+  --gold-light: #f5e6b8;
   
-  --background: #eeffdb;
-  --foreground: #1a3a2f;
+  /* Light Theme - Clean White Base */
+  --background: #ffffff;
+  --foreground: #1a1a1a;
   --card: #ffffff;
-  --card-foreground: #1a3a2f;
+  --card-foreground: #1a1a1a;
   --popover: #ffffff;
-  --popover-foreground: #1a3a2f;
-  --primary: #71dbd2;
-  --primary-foreground: #0d3d38;
-  --secondary: #ade4b5;
-  --secondary-foreground: #1a3a2f;
-  --muted: #d0eaa3;
-  --muted-foreground: #4a6b5d;
-  --accent: #fff18c;
-  --accent-foreground: #5a4a00;
-  --destructive: #ef4444;
-  --border: #ade4b5;
-  --input: #d0eaa3;
-  --ring: #71dbd2;
-  --chart-1: #71dbd2;
-  --chart-2: #ade4b5;
-  --chart-3: #d0eaa3;
-  --chart-4: #fff18c;
-  --chart-5: #eeffdb;
-  --sidebar: #eeffdb;
-  --sidebar-foreground: #1a3a2f;
-  --sidebar-primary: #71dbd2;
-  --sidebar-primary-foreground: #0d3d38;
-  --sidebar-accent: #d0eaa3;
-  --sidebar-accent-foreground: #1a3a2f;
-  --sidebar-border: #ade4b5;
-  --sidebar-ring: #71dbd2;
+  --popover-foreground: #1a1a1a;
+  --primary: #c9a227;
+  --primary-foreground: #1a1000;
+  --secondary: #1a6b4a;
+  --secondary-foreground: #ffffff;
+  --muted: #f5f5f5;
+  --muted-foreground: #6b6b6b;
+  --accent: #1a6b4a;
+  --accent-foreground: #ffffff;
+  --destructive: #bf0a30;
+  --border: #e5e5e5;
+  --input: #f5f5f5;
+  --ring: #c9a227;
+  --chart-1: #1a6b4a;
+  --chart-2: #c9a227;
+  --chart-3: #002868;
+  --chart-4: #bf0a30;
+  --chart-5: #1a1a1a;
+  --sidebar: #fafafa;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #c9a227;
+  --sidebar-primary-foreground: #1a1000;
+  --sidebar-accent: #1a6b4a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e5e5e5;
+  --sidebar-ring: #c9a227;
 }
 
+/* Dark Theme - Elegant Dark */
 .dark {
-  --background: oklch(0.12 0.01 285);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.16 0.01 285);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.16 0.01 285);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.65 0.25 285);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.22 0.02 285);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.22 0.02 285);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.25 0.05 285);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.65 0.25 285);
-  --chart-1: oklch(0.65 0.25 285);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.16 0.01 285);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.65 0.25 285);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.22 0.02 285);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.65 0.25 285);
+  --background: #0f0f0f;
+  --foreground: #fafafa;
+  --card: #1a1a1a;
+  --card-foreground: #fafafa;
+  --popover: #1a1a1a;
+  --popover-foreground: #fafafa;
+  --primary: #d4af37;
+  --primary-foreground: #1a1000;
+  --secondary: #1a6b4a;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  --accent: #1a6b4a;
+  --accent-foreground: #fafafa;
+  --destructive: #bf0a30;
+  --border: #2a2a2a;
+  --input: #262626;
+  --ring: #d4af37;
+  --chart-1: #d4af37;
+  --chart-2: #1a6b4a;
+  --chart-3: #002868;
+  --chart-4: #bf0a30;
+  --chart-5: #fafafa;
+  --sidebar: #0f0f0f;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #1a1000;
+  --sidebar-accent: #1a6b4a;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #2a2a2a;
+  --sidebar-ring: #d4af37;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  
   body {
     @apply bg-background text-foreground;
+    /* Subtle pattern for texture */
+    background-image: 
+      radial-gradient(ellipse at 100% 0%, rgba(26, 107, 74, 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 0% 100%, rgba(201, 162, 39, 0.03) 0%, transparent 50%);
+    background-attachment: fixed;
+  }
+  
+  .dark body,
+  body:is(.dark *),
+  .dark {
+    background-image: 
+      radial-gradient(ellipse at 100% 0%, rgba(26, 107, 74, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 0% 100%, rgba(201, 162, 39, 0.05) 0%, transparent 50%);
   }
 }
 
@@ -157,3 +180,109 @@ input[type="number"] {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Host Country Gradient Border */
+.border-hosts {
+  border-image: linear-gradient(90deg, #1a6b4a 0%, #002868 50%, #bf0a30 100%) 1;
+}
+
+/* Animated Title Gradient */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.title-gradient-animated {
+  background: linear-gradient(
+    90deg,
+    #1a6b4a 0%,
+    #2a8b6a 20%,
+    #c9a227 40%,
+    #d4af37 60%,
+    #1a6b4a 80%,
+    #1a6b4a 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-shift 4s ease-in-out infinite;
+}
+
+/* Gold accent effects */
+.gold-glow {
+  box-shadow: 0 4px 20px rgba(201, 162, 39, 0.25);
+}
+
+.gold-text {
+  color: #c9a227;
+}
+
+/* Premium glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(26, 107, 74, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.dark .glass-card {
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid rgba(201, 162, 39, 0.1);
+}
+
+/* Winner state with gold */
+.winner-gold {
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.15) 0%, rgba(201, 162, 39, 0.05) 100%);
+  border-color: #c9a227 !important;
+  box-shadow: 0 0 15px rgba(201, 162, 39, 0.15);
+}
+
+/* Goal celebration flash */
+@keyframes goal-flash {
+  0%, 100% { opacity: 0; }
+  10%, 30% { opacity: 1; }
+  40% { opacity: 0; }
+}
+
+.goal-celebration {
+  animation: goal-flash 0.6s ease-out;
+}
+
+/* Sports broadcast-style transition */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(100px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.slide-in-left {
+  animation: slide-in-left 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.slide-in-right {
+  animation: slide-in-right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Score input bold styling */
+.score-input {
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}

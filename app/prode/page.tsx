@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, RefreshCw, UserX, Cloud, CloudOff, Grid3X3, ArrowRight } from 'lucide-react';
 import { GroupTabs } from '@/components/GroupTabs';
@@ -11,7 +11,12 @@ import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { supabase } from '@/lib/supabase';
 import { getUserPredictions, savePredictions } from '@/services/predictions';
 import { getPlayoffPredictions, savePlayoffPredictions } from '@/services/playoffPredictions';
-import { generatePlayoffBracket, applyPlayoffPredictions } from '@/lib/playoffLogic';
+import {
+    generatePlayoffBracket,
+    applyPlayoffPredictions,
+    getQualifiedTeamCodes,
+    cleanInvalidPlayoffPredictions
+} from '@/lib/playoffLogic';
 import type { GroupPredictions } from '@/types/groupStandings';
 import type { PlayoffPredictions } from '@/types/playoffTypes';
 
@@ -38,6 +43,10 @@ export default function ProdePage() {
     // Save State
     const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
+
+    // Track previous qualified teams to detect changes (ghost team cleanup)
+    const previousQualifiedRef = useRef<string>('');
+    const isInitialLoadRef = useRef<boolean>(true);
 
     // Check for unsaved changes
     const hasUnsavedGroup = Object.keys(groupPredictions).length > 0 &&
@@ -85,9 +94,34 @@ export default function ProdePage() {
                 }
             }
             setIsLoading(false);
+            isInitialLoadRef.current = false;
         }
         loadData();
     }, []);
+
+    // Clean invalid playoff predictions when qualified teams change (ghost team cleanup)
+    useEffect(() => {
+        // Skip on initial load
+        if (isInitialLoadRef.current || isLoading) return;
+
+        // Get current qualified team codes
+        const currentQualifiedCodes = getQualifiedTeamCodes(groupPredictions).join(',');
+
+        // Check if qualified teams have changed
+        if (previousQualifiedRef.current && previousQualifiedRef.current !== currentQualifiedCodes) {
+            // Qualified teams changed - clean invalid playoff predictions
+            const baseBracket = generatePlayoffBracket(groupPredictions);
+            const cleanedPredictions = cleanInvalidPlayoffPredictions(playoffPredictions, baseBracket);
+
+            // Only update if predictions actually changed
+            if (JSON.stringify(cleanedPredictions) !== JSON.stringify(playoffPredictions)) {
+                setPlayoffPredictions(cleanedPredictions);
+            }
+        }
+
+        // Update ref for next comparison
+        previousQualifiedRef.current = currentQualifiedCodes;
+    }, [groupPredictions, playoffPredictions, isLoading]);
 
     // Handle Group Predictions
     const handleGroupPredictionChange = useCallback((matchId: string, home: number | null, away: number | null) => {
@@ -149,8 +183,8 @@ export default function ProdePage() {
 
     return (
         <div className="min-h-screen pb-24">
-            {/* Header */}
-            <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
+            {/* Header with Host Country Gradient */}
+            <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80">
                 <div className="px-4 py-4 space-y-4">
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
@@ -158,12 +192,17 @@ export default function ProdePage() {
                         className="flex items-center justify-between"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-primary/30">
-                                <Trophy className="w-5 h-5 text-primary" />
+                            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-gold/20 to-mexico/20 flex items-center justify-center border border-gold/30">
+                                <Trophy className="w-5 h-5 text-gold" />
                             </div>
                             <div>
-                                <h1 className="text-lg font-bold">Simulador</h1>
-                                <p className="text-xs text-muted-foreground">Mundial 2026</p>
+                                <h1 className="text-lg font-bold text-gold">Simulador</h1>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-mexico"></span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-usa"></span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-canada"></span>
+                                    Mundial 2026
+                                </p>
                             </div>
                         </div>
 
@@ -172,12 +211,12 @@ export default function ProdePage() {
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 {user ? (
                                     <>
-                                        <Cloud className="w-4 h-4 text-green-500" />
+                                        <Cloud className="w-4 h-4 text-mexico" />
                                         <span className="hidden sm:inline">Sincronizado</span>
                                     </>
                                 ) : (
                                     <>
-                                        <CloudOff className="w-4 h-4 text-yellow-500" />
+                                        <CloudOff className="w-4 h-4 text-gold" />
                                         <span className="hidden sm:inline">Local</span>
                                     </>
                                 )}
@@ -185,13 +224,13 @@ export default function ProdePage() {
                         )}
                     </motion.div>
 
-                    {/* Phase Switcher */}
-                    <div className="flex p-1 bg-muted/50 rounded-xl border border-border/50">
+                    {/* Phase Switcher - Premium Style */}
+                    <div className="flex p-1 bg-mexico/10 rounded-xl border border-mexico/20">
                         <button
                             onClick={() => setPhase('groups')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${phase === 'groups'
-                                    ? 'bg-background shadow-sm text-primary'
-                                    : 'text-muted-foreground hover:text-foreground'
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${phase === 'groups'
+                                ? 'bg-linear-to-r from-gold to-gold text-gold-dark shadow-lg shadow-gold/25'
+                                : 'text-muted-foreground hover:text-gold'
                                 }`}
                         >
                             <Grid3X3 className="w-4 h-4" />
@@ -199,16 +238,18 @@ export default function ProdePage() {
                         </button>
                         <button
                             onClick={() => setPhase('playoffs')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${phase === 'playoffs'
-                                    ? 'bg-background shadow-sm text-primary'
-                                    : 'text-muted-foreground hover:text-foreground'
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${phase === 'playoffs'
+                                ? 'bg-linear-to-r from-gold to-gold text-gold-dark shadow-lg shadow-gold/25'
+                                : 'text-muted-foreground hover:text-gold'
                                 }`}
                         >
-                            <ArrowRight className="w-4 h-4" />
+                            <Trophy className="w-4 h-4" />
                             Eliminatorias
                         </button>
                     </div>
                 </div>
+                {/* Host Country Gradient Border */}
+                <div className="h-[3px] bg-linear-to-r from-mexico via-usa to-canada" />
             </header>
 
             {/* Guest Warning */}
@@ -240,9 +281,10 @@ export default function ProdePage() {
                         {phase === 'groups' ? (
                             <motion.div
                                 key="groups"
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
+                                initial={{ opacity: 0, x: -100, scale: 0.95 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, x: -100, scale: 0.95 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                                 className="space-y-6"
                             >
                                 <GroupTabs activeGroup={activeGroup} onSelect={setActiveGroup} />
@@ -256,12 +298,14 @@ export default function ProdePage() {
                         ) : (
                             <motion.div
                                 key="playoffs"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
+                                initial={{ opacity: 0, x: 100, scale: 0.95 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, x: 100, scale: 0.95 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                             >
-                                <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
-                                    <h3 className="text-sm font-semibold text-primary mb-1">
+                                <div className="mb-6 p-4 rounded-xl glass-card border border-gold/30">
+                                    <h3 className="text-sm font-semibold text-gold mb-1 flex items-center gap-2">
+                                        <Trophy className="w-4 h-4" />
                                         Fase Eliminatoria
                                     </h3>
                                     <p className="text-xs text-muted-foreground">

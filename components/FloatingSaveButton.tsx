@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Save, Loader2, Check } from 'lucide-react';
+import { Loader2, Check, Goal } from 'lucide-react';
 
 interface FloatingSaveButtonProps {
     hasChanges: boolean;
@@ -29,11 +29,11 @@ export function FloatingSaveButton({
                     <button
                         onClick={onSave}
                         disabled={isSaving || isSaved}
-                        className={`flex items-center gap-2 px-5 py-3 rounded-full font-medium shadow-lg 
-                       transition-all duration-200 
+                        className={`flex items-center gap-2 px-5 py-3 rounded-full font-semibold shadow-lg 
+                       transition-all duration-300 
                        ${isSaved
-                                ? 'bg-green-500 text-white shadow-green-500/25'
-                                : 'bg-primary text-primary-foreground shadow-primary/25 hover:shadow-primary/40 hover:scale-105'
+                                ? 'bg-mexico text-white shadow-mexico/40'
+                                : 'bg-linear-to-r from-gold to-gold text-gold-dark shadow-gold/40 hover:shadow-gold/60 hover:scale-105 gold-glow'
                             }
                        disabled:cursor-not-allowed`}
                     >
@@ -44,16 +44,63 @@ export function FloatingSaveButton({
                             </>
                         ) : isSaved ? (
                             <>
-                                <Check className="w-5 h-5" />
-                                <span>¡Guardado!</span>
+                                <motion.div
+                                    initial={{ scale: 0, rotate: -180 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 500 }}
+                                >
+                                    <Check className="w-5 h-5" />
+                                </motion.div>
+                                <span>¡Gooool!</span>
                             </>
                         ) : (
                             <>
-                                <Save className="w-5 h-5" />
+                                <motion.div
+                                    animate={{
+                                        rotate: [0, -10, 10, -10, 0],
+                                        scale: [1, 1.1, 1]
+                                    }}
+                                    transition={{
+                                        duration: 0.5,
+                                        repeat: Infinity,
+                                        repeatDelay: 2
+                                    }}
+                                >
+                                    <Goal className="w-5 h-5" />
+                                </motion.div>
                                 <span>Guardar Predicciones</span>
                             </>
                         )}
                     </button>
+
+                    {/* Celebration particles on save */}
+                    {isSaved && (
+                        <motion.div
+                            className="absolute inset-0 pointer-events-none"
+                            initial={{ opacity: 1 }}
+                            animate={{ opacity: 0 }}
+                            transition={{ duration: 1 }}
+                        >
+                            {[...Array(8)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    className="absolute w-2 h-2 rounded-full bg-gold"
+                                    style={{
+                                        left: '50%',
+                                        top: '50%',
+                                    }}
+                                    initial={{ x: 0, y: 0, scale: 1 }}
+                                    animate={{
+                                        x: Math.cos((i * Math.PI * 2) / 8) * 60,
+                                        y: Math.sin((i * Math.PI * 2) / 8) * 60,
+                                        scale: 0,
+                                        opacity: 0
+                                    }}
+                                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                                />
+                            ))}
+                        </motion.div>
+                    )}
                 </motion.div>
             )}
         </AnimatePresence>

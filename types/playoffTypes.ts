@@ -11,6 +11,7 @@ export interface QualifiedTeam {
     points: number;
     goalDiff: number;
     goalsFor: number;
+    originLabel: string; // "1° Grupo A", "2° Grupo B", "Mejor 3°"
 }
 
 export interface PlayoffMatch {
