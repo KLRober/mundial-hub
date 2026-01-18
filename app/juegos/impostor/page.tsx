@@ -25,8 +25,16 @@ export default function ImpostorGame() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [pointsEarned, setPointsEarned] = useState<number | null>(null);
 
-    // Check if user is authenticated
+    // Check if user is authenticated (real or demo mode)
     useEffect(() => {
+        // Check demo mode first
+        const demoUser = localStorage.getItem('mundial-hub-demo-user');
+        if (demoUser) {
+            setIsLoggedIn(true);
+            return;
+        }
+
+        // Check Supabase auth
         supabase.auth.getUser().then(({ data: { user } }) => {
             setIsLoggedIn(!!user);
         });

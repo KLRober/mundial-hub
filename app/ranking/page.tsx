@@ -18,11 +18,30 @@ export default function RankingPage() {
     const [loading, setLoading] = useState(true);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
+    const [demoUser, setDemoUser] = useState<RankingUser | null>(null);
+
     useEffect(() => {
-        // Get current user
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            setCurrentUserId(user?.id ?? null);
-        });
+        // Check for demo mode
+        const demoUserData = localStorage.getItem('mundial-hub-demo-user');
+        const demoPoints = parseInt(localStorage.getItem('mundial-hub-demo-points') || '0');
+
+        if (demoUserData) {
+            const parsed = JSON.parse(demoUserData);
+            setCurrentUserId(parsed.id);
+            if (demoPoints > 0) {
+                setDemoUser({
+                    id: parsed.id,
+                    username: 'Jugador Demo ⭐',
+                    avatar_url: null,
+                    puntos_totales: demoPoints
+                });
+            }
+        } else {
+            // Get current Supabase user
+            supabase.auth.getUser().then(({ data: { user } }) => {
+                setCurrentUserId(user?.id ?? null);
+            });
+        }
 
         // Fetch ranking - only necessary fields for security and efficiency
         const fetchRanking = async () => {
@@ -34,6 +53,7 @@ export default function RankingPage() {
 
             if (error) {
                 console.error('Error fetching ranking:', error);
+                setRanking([]);
             } else {
                 setRanking(data || []);
             }
@@ -175,7 +195,7 @@ export default function RankingPage() {
 
             {loading ? (
                 <SkeletonLoader />
-            ) : ranking.length === 0 ? (
+            ) : ranking.length === 0 && !demoUser ? (
                 <Card className="p-8 text-center">
                     <Trophy className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                     <p className="text-muted-foreground">
@@ -186,6 +206,34 @@ export default function RankingPage() {
                 </Card>
             ) : (
                 <>
+                    {/* Demo user special card - shown first if they have points */}
+                    {demoUser && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-4"
+                        >
+                            <Card className="p-4 border-amber-500/30 bg-amber-500/5">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold">
+                                        ⭐
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-bold text-amber-600">Tu Puntuación (Demo)</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            Jugando en modo invitado
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-2xl font-black text-amber-600">
+                                            {demoUser.puntos_totales}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">puntos</p>
+                                    </div>
+                                </div>
+                            </Card>
+                        </motion.div>
+                    )}
                     {/* Top 3 Podium */}
                     {ranking.length >= 3 && <TopThreePodium />}
 
