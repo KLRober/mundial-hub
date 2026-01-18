@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Trophy, Flame, ChevronRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -39,13 +40,15 @@ export function Leaderboard() {
                         <Trophy className="h-5 w-5 text-yellow-500" />
                         <h2 className="text-lg font-semibold">Leaderboard</h2>
                     </div>
-                    <motion.button
-                        whileHover={{ x: 3 }}
-                        className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-                    >
-                        Ver todo
-                        <ChevronRight className="h-3 w-3" />
-                    </motion.button>
+                    <Link href="/ranking">
+                        <motion.span
+                            whileHover={{ x: 3 }}
+                            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                        >
+                            Ver todo
+                            <ChevronRight className="h-3 w-3" />
+                        </motion.span>
+                    </Link>
                 </div>
             </div>
 

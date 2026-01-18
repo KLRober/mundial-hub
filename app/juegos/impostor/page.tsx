@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Eye, EyeOff, Timer, ArrowRight, RotateCcw, PartyPopper, AlertTriangle } from 'lucide-react';
+import { Users, Eye, EyeOff, Timer, ArrowRight, RotateCcw, PartyPopper, AlertTriangle, Trophy, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { getRandomWord } from '@/lib/impostorData';
+import { supabase } from '@/lib/supabase';
+import { addGamePoints } from '@/services/gamePoints';
 
 type GameState = 'SETUP' | 'REVEAL' | 'DISCUSSION' | 'VOTING' | 'RESULT';
 
@@ -20,6 +22,15 @@ export default function ImpostorGame() {
     const [isRevealing, setIsRevealing] = useState(false);
     const [timeLeft, setTimeLeft] = useState(60);
     const [votedPlayer, setVotedPlayer] = useState<number | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [pointsEarned, setPointsEarned] = useState<number | null>(null);
+
+    // Check if user is authenticated
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            setIsLoggedIn(!!user);
+        });
+    }, []);
 
     const startGame = () => {
         const { word, category } = getRandomWord();
@@ -51,12 +62,28 @@ export default function ImpostorGame() {
 
     const handleVote = (playerIndex: number) => {
         setVotedPlayer(playerIndex);
+        setPointsEarned(null); // Reset points before showing result
         setGameState('RESULT');
     };
+
+    // Award points when game ends with a win and user is logged in
+    useEffect(() => {
+        const awardPoints = async () => {
+            if (gameState === 'RESULT' && votedPlayer === impostorIndex && isLoggedIn) {
+                const POINTS_FOR_WIN = 10;
+                const success = await addGamePoints(POINTS_FOR_WIN);
+                if (success) {
+                    setPointsEarned(POINTS_FOR_WIN);
+                }
+            }
+        };
+        awardPoints();
+    }, [gameState, votedPlayer, impostorIndex, isLoggedIn]);
 
     const resetGame = () => {
         setGameState('SETUP');
         setVotedPlayer(null);
+        setPointsEarned(null);
     };
 
     return (
@@ -247,6 +274,31 @@ export default function ImpostorGame() {
                                 <div className="my-4 h-px bg-border/50" />
                                 <p className="text-sm text-muted-foreground">La palabra secreta era:</p>
                                 <p className="text-xl font-bold">{currentWord}</p>
+
+                                {/* Points earned notification */}
+                                {votedPlayer === impostorIndex && (
+                                    <div className="mt-4 pt-4 border-t border-border/50">
+                                        {pointsEarned ? (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="flex items-center justify-center gap-2 text-yellow-500"
+                                            >
+                                                <Sparkles className="w-5 h-5" />
+                                                <span className="font-bold">+{pointsEarned} puntos</span>
+                                                <Trophy className="w-5 h-5" />
+                                            </motion.div>
+                                        ) : isLoggedIn ? (
+                                            <p className="text-sm text-muted-foreground animate-pulse">
+                                                Sumando puntos...
+                                            </p>
+                                        ) : (
+                                            <p className="text-sm text-muted-foreground">
+                                                Inicia sesión para acumular puntos 🎮
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             </Card>
                         </div>
 
