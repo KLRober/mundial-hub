@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { BottomNav } from "@/components/BottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,8 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
+import { PWAUpdater } from "@/components/PWAUpdater";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -51,9 +54,13 @@ export default function RootLayout({
           <div className="absolute inset-0 bg-linear-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
 
           {/* Main content */}
-          <main className="relative">
+          <main className="relative flex-1 pb-20">
             {children}
           </main>
+
+          {/* Navigation */}
+          <BottomNav />
+          <PWAUpdater />
         </div>
       </body>
     </html>

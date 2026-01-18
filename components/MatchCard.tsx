@@ -1,8 +1,10 @@
-'use client';
-
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, MapPin } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Clock, MapPin, Save, AlertCircle } from 'lucide-react';
+import { Card } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { supabase } from '@/lib/supabase';
 import type { Match } from '@/types/database';
 
 interface MatchCardProps {
@@ -13,18 +15,75 @@ interface MatchCardProps {
 export function MatchCard({ match, onClick }: MatchCardProps) {
     const isLive = match.status === 'live';
     const isFinished = match.status === 'finished';
+    const [predLocal, setPredLocal] = useState('');
+    const [predVisitante, setPredVisitante] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+    const [hasPredicted, setHasPredicted] = useState(false);
+    const [user, setUser] = useState<any>(null);
+
+    useEffect(() => {
+        // Check current user
+        supabase.auth.getUser().then(({ data }) => {
+            setUser(data.user);
+            if (data.user) {
+                checkExistingPrediction(data.user.id);
+            }
+        });
+    }, [match.id]);
+
+    const checkExistingPrediction = async (userId: string) => {
+        const { data } = await supabase
+            .from('predictions')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('match_id', match.id)
+            .single();
+
+        if (data) {
+            setPredLocal(data.pred_local);
+            setPredVisitante(data.pred_visitante);
+            setHasPredicted(true);
+        }
+    };
+
+    const handleSavePrediction = async (e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent card click
+
+        if (!user) {
+            alert('Debes iniciar sesión para guardar predicciones');
+            return;
+        }
+
+        if (predLocal === '' || predVisitante === '') return;
+
+        setIsSaving(true);
+        const { error } = await supabase
+            .from('predictions')
+            .upsert({
+                user_id: user.id,
+                match_id: match.id,
+                pred_local: parseInt(predLocal),
+                pred_visitante: parseInt(predVisitante)
+            }, { onConflict: 'user_id,match_id' });
+
+        setIsSaving(false);
+        if (error) {
+            console.error('Error saving prediction:', error);
+            alert('Error al guardar predicción');
+        } else {
+            setHasPredicted(true);
+        }
+    };
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.01 }}
             transition={{ duration: 0.2 }}
         >
             <Card
-                onClick={onClick}
-                className={`relative overflow-hidden p-4 cursor-pointer transition-all duration-300 ${isLive
+                className={`relative overflow-hidden p-4 transition-all duration-300 ${isLive
                     ? 'bg-linear-to-br from-red-500/10 via-orange-500/5 to-transparent border-red-500/30'
                     : 'bg-linear-to-br from-primary/5 via-transparent to-secondary/5 hover:from-primary/10 hover:to-secondary/10'
                     }`}
@@ -42,63 +101,78 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     </div>
                 )}
 
-                {/* Match info */}
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center justify-between gap-2" onClick={onClick}>
                     {/* Home team */}
-                    <div className="flex-1 text-center">
-                        <div className="text-3xl mb-1">{match.home_team.flag_url}</div>
-                        <p className="text-sm font-medium text-foreground/80 truncate">
+                    <div className="flex-1 flex flex-col items-center gap-2">
+                        <div className="text-3xl">{match.home_team.flag_url || '🏳️'}</div>
+                        <p className="text-sm font-medium text-center leading-tight">
                             {match.home_team.name}
                         </p>
+                        {!isFinished && !isLive && (
+                            <Input
+                                type="number"
+                                className="w-12 h-8 text-center"
+                                placeholder="-"
+                                value={predLocal}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPredLocal(e.target.value)}
+                                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                            />
+                        )}
                     </div>
 
-                    {/* Score or time */}
-                    <div className="flex flex-col items-center min-w-[80px]">
+                    {/* Score/Time/Action */}
+                    <div className="flex flex-col items-center min-w-[80px] gap-1">
                         {isFinished || isLive ? (
-                            <div className="flex items-center gap-2">
-                                <span className="text-2xl font-bold">{match.home_score}</span>
-                                <span className="text-lg text-muted-foreground">-</span>
-                                <span className="text-2xl font-bold">{match.away_score}</span>
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="text-2xl font-bold">{match.home_score ?? 0}</span>
+                                <span className="text-muted-foreground">-</span>
+                                <span className="text-2xl font-bold">{match.away_score ?? 0}</span>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center">
+                            <div className="flex flex-col items-center mb-2">
                                 <Clock className="h-4 w-4 text-muted-foreground mb-1" />
-                                <span className="text-lg font-semibold text-primary">
+                                <span className="text-xs font-semibold text-primary">
                                     {match.match_time}
                                 </span>
                             </div>
                         )}
 
-                        {isFinished && (
-                            <span className="text-xs text-muted-foreground mt-1">Final</span>
+                        {!isFinished && (
+                            <Button
+                                size="sm"
+                                className={`h-7 text-xs px-3 ${hasPredicted ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                                onClick={handleSavePrediction}
+                                disabled={isSaving || (predLocal === '' || predVisitante === '')}
+                            >
+                                {isSaving ? '...' : hasPredicted ? 'Guardado' : 'Predecir'}
+                            </Button>
                         )}
                     </div>
 
                     {/* Away team */}
-                    <div className="flex-1 text-center">
-                        <div className="text-3xl mb-1">{match.away_team.flag_url}</div>
-                        <p className="text-sm font-medium text-foreground/80 truncate">
+                    <div className="flex-1 flex flex-col items-center gap-2">
+                        <div className="text-3xl">{match.away_team.flag_url || '🏳️'}</div>
+                        <p className="text-sm font-medium text-center leading-tight">
                             {match.away_team.name}
                         </p>
+                        {!isFinished && !isLive && (
+                            <Input
+                                type="number"
+                                className="w-12 h-8 text-center"
+                                placeholder="-"
+                                value={predVisitante}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPredVisitante(e.target.value)}
+                                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                            />
+                        )}
                     </div>
                 </div>
 
                 {/* Venue */}
                 <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
                     <MapPin className="h-3 w-3" />
-                    <span>
-                        {match.venue}, {match.city}
-                    </span>
+                    <span>{match.city}</span>
                 </div>
-
-                {/* Group badge */}
-                {match.group && (
-                    <div className="absolute top-2 left-2">
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">
-                            Grupo {match.group}
-                        </span>
-                    </div>
-                )}
             </Card>
         </motion.div>
     );

@@ -86,27 +86,7 @@ export default function Home() {
         <Leaderboard />
       </motion.section>
 
-      {/* Bottom Navigation Placeholder */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[500px] bg-background/95 backdrop-blur-xl border-t border-border/50 px-6 py-3">
-        <div className="flex items-center justify-around">
-          {[
-            { icon: Trophy, label: 'Prode', active: true },
-            { icon: Gamepad2, label: 'Juegos', active: false },
-            { icon: TrendingUp, label: 'Ranking', active: false },
-          ].map((item) => (
-            <button
-              key={item.label}
-              className={`flex flex-col items-center gap-1 px-4 py-1 rounded-lg transition-colors ${item.active
-                ? 'text-primary'
-                : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
+
     </div>
   );
 }

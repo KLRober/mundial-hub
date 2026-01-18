@@ -27,6 +27,42 @@
         "games",
         "entertainment"
     ],
+    "screenshots": [
+        {
+            "src": "/screenshots/narrow.png",
+            "sizes": "500x1000",
+            "type": "image/png",
+            "form_factor": "narrow"
+        },
+        {
+            "src": "/screenshots/wide.png",
+            "sizes": "1000x500",
+            "type": "image/png",
+            "form_factor": "wide"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Ver Partidos",
+            "url": "/",
+            "icons": [
+                {
+                    "src": "/icons/shortcut-matches.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Jugar Impostor",
+            "url": "/juegos/impostor",
+            "icons": [
+                {
+                    "src": "/icons/shortcut-game.png",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ],
     "lang": "es-LA",
     "dir": "ltr"
 }

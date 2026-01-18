@@ -16,6 +16,10 @@ Una plataforma donde los fanáticos del fútbol pueden:
 
 - **📅 Feed de Partidos** — Seguimiento en vivo de todos los partidos del día con horarios, estadios y resultados.
 
+- **🕵️‍♂️ El Impostor** — Minijuego social de deducción para jugar en grupo mientras esperas el partido.
+
+- **👤 Perfil de Usuario** — Historial de puntos, login con Google y estadísticas personales.
+
 ## 🌎 Diseñado para LATAM
 
 Mundial Hub está pensado específicamente para el mercado latinoamericano, con:
@@ -47,7 +51,37 @@ Mundial Hub está pensado específicamente para el mercado latinoamericano, con:
 | Soft Green | `#ade4b5` | Secondary |
 | Lime | `#d0eaa3` | Muted |
 | Yellow | `#fff18c` | Accent |
+| Yellow | `#fff18c` | Accent |
 
+## 🚀 Configuración Local
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone <URL_DEL_REPO>
+   cd mundial-hub
+   ```
+
+2. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
+
+3. **Configurar Variables de Entorno:**
+   Crea un archivo `.env.local` en la raíz del proyecto y agrega tus credenciales de Supabase:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
+   ```
+
+4. **Base de Datos (Supabase):**
+   - Ejecuta el script `supabase/schema.sql` en el Editor SQL de Supabase para crear las tablas.
+   - Ejecuta `supabase/seed.sql` para cargar los partidos iniciales.
+
+5. **Correr el servidor:**
+   ```bash
+   npm run dev
+   ```
+   Abre [http://localhost:3000](http://localhost:3000).
 ---
 
 **Mundial Hub 2026** — Donde cada partido es una oportunidad de ganar. 🏆

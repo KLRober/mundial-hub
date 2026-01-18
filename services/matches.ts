@@ -1,109 +1,86 @@
-import type { Match, Team } from '@/types/database';
-
-// Mock teams data
-const mockTeams: Record<string, Team> = {
-    ARG: {
-        id: 'arg',
-        name: 'Argentina',
-        code: 'ARG',
-        flag_url: '🇦🇷',
-        group: 'A',
-    },
-    MEX: {
-        id: 'mex',
-        name: 'México',
-        code: 'MEX',
-        flag_url: '🇲🇽',
-        group: 'A',
-    },
-    BRA: {
-        id: 'bra',
-        name: 'Brasil',
-        code: 'BRA',
-        flag_url: '🇧🇷',
-        group: 'B',
-    },
-    USA: {
-        id: 'usa',
-        name: 'Estados Unidos',
-        code: 'USA',
-        flag_url: '🇺🇸',
-        group: 'B',
-    },
-    ESP: {
-        id: 'esp',
-        name: 'España',
-        code: 'ESP',
-        flag_url: '🇪🇸',
-        group: 'C',
-    },
-    GER: {
-        id: 'ger',
-        name: 'Alemania',
-        code: 'GER',
-        flag_url: '🇩🇪',
-        group: 'C',
-    },
-};
-
-// Mock matches for today
-const mockMatches: Match[] = [
-    {
-        id: 'match-1',
-        home_team: mockTeams.ARG,
-        away_team: mockTeams.MEX,
-        home_score: null,
-        away_score: null,
-        match_date: new Date().toISOString().split('T')[0],
-        match_time: '16:00',
-        venue: 'Estadio Azteca',
-        city: 'Ciudad de México',
-        stage: 'group',
-        status: 'scheduled',
-        group: 'A',
-    },
-    {
-        id: 'match-2',
-        home_team: mockTeams.BRA,
-        away_team: mockTeams.USA,
-        home_score: 2,
-        away_score: 1,
-        match_date: new Date().toISOString().split('T')[0],
-        match_time: '13:00',
-        venue: 'MetLife Stadium',
-        city: 'Nueva Jersey',
-        stage: 'group',
-        status: 'finished',
-        group: 'B',
-    },
-    {
-        id: 'match-3',
-        home_team: mockTeams.ESP,
-        away_team: mockTeams.GER,
-        home_score: 1,
-        away_score: 1,
-        match_date: new Date().toISOString().split('T')[0],
-        match_time: '19:00',
-        venue: 'SoFi Stadium',
-        city: 'Los Ángeles',
-        stage: 'group',
-        status: 'live',
-        group: 'C',
-    },
-];
+import { supabase } from '@/lib/supabase';
+import type { Match } from '@/types/database';
 
 export async function getTodayMatches(): Promise<Match[]> {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return mockMatches;
+    const today = new Date().toISOString().split('T')[0];
+
+    const { data, error } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('fecha', today)
+        .order('match_time', { ascending: true });
+
+    if (error) {
+        console.error('Error fetching matches:', error);
+        return [];
+    }
+
+    return (data || []).map(mapSupabaseMatch);
 }
 
 export async function getMatchById(id: string): Promise<Match | null> {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockMatches.find((m) => m.id === id) || null;
+    const { data, error } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) {
+        console.error('Error fetching match:', error);
+        return null;
+    }
+
+    return data ? mapSupabaseMatch(data) : null;
 }
 
 export async function getUpcomingMatches(): Promise<Match[]> {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return mockMatches.filter((m) => m.status === 'scheduled');
+    const { data, error } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('estado', 'scheduled')
+        .order('fecha', { ascending: true })
+        .limit(10);
+
+    if (error) {
+        console.error('Error fetching upcoming matches:', error);
+        return [];
+    }
+
+    return (data || []).map(mapSupabaseMatch);
+}
+
+// Helper to map Supabase raw data to frontend Match type
+function mapSupabaseMatch(raw: any): Match {
+    // Note: This mapping assumes the Supabase 'matches' table structure 
+    // aligns somewhat with our Match interface, or we perform necessary transforms here.
+    // For now, mapping simplified for the example. Real world might need 
+    // joining with a 'teams' table if 'equipo_local' is just an ID.
+    // Based on user request, match has 'equipo_local' text, which is simple.
+
+    return {
+        id: raw.id,
+        home_team: {
+            id: raw.equipo_local.substring(0, 3).toLowerCase(), // placeholder ID generation
+            name: raw.equipo_local,
+            code: raw.equipo_local.substring(0, 3).toUpperCase(),
+            flag_url: '', // We might need a helper to get flags or store them in DB
+            group: raw.group_name
+        },
+        away_team: {
+            id: raw.equipo_visitante.substring(0, 3).toLowerCase(),
+            name: raw.equipo_visitante,
+            code: raw.equipo_visitante.substring(0, 3).toUpperCase(),
+            flag_url: '',
+            group: raw.group_name
+        },
+        home_score: raw.goles_local,
+        away_score: raw.goles_visitante,
+        match_date: raw.fecha.split('T')[0],
+        match_time: new Date(raw.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+        venue: raw.venue,
+        city: raw.city,
+        stage: 'group', // simplified
+        status: raw.estado as 'scheduled' | 'live' | 'finished',
+        group: raw.group_name
+    };
 }
