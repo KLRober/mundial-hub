@@ -1,0 +1,32 @@
+{
+    "name": "Mundial Hub 2026",
+    "short_name": "Mundial Hub",
+    "description": "PWA social y gamificada para el Mundial 2026. Prode, minijuegos y más.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#eeffdb",
+    "theme_color": "#71dbd2",
+    "orientation": "portrait",
+    "scope": "/",
+    "icons": [
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "sports",
+        "games",
+        "entertainment"
+    ],
+    "lang": "es-LA",
+    "dir": "ltr"
+}
