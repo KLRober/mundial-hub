@@ -17,9 +17,10 @@ export default function PerfilPage() {
 
     // Email login state
     const [email, setEmail] = useState('');
-    const [emailSent, setEmailSent] = useState(false);
+    const [password, setPassword] = useState('');
     const [emailLoading, setEmailLoading] = useState(false);
     const [emailError, setEmailError] = useState('');
+    const [emailSent, setEmailSent] = useState(false);
 
     // Demo mode state
     const [isDemo, setIsDemo] = useState(false);
@@ -96,6 +97,23 @@ export default function PerfilPage() {
         setEmailLoading(true);
         setEmailError('');
 
+        // If password is provided, use password login
+        if (password.trim()) {
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            setEmailLoading(false);
+
+            if (error) {
+                setEmailError(error.message);
+            }
+            // If successful, the auth state change will trigger and update state
+            return;
+        }
+
+        // Otherwise use magic link
         const { error } = await supabase.auth.signInWithOtp({
             email,
             options: {
@@ -206,37 +224,50 @@ export default function PerfilPage() {
                                     {/* Email input */}
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium">Email</label>
-                                        <div className="flex gap-2">
-                                            <Input
-                                                type="email"
-                                                placeholder="tu@email.com"
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                onKeyDown={(e) => e.key === 'Enter' && handleEmailLogin()}
-                                                className="flex-1"
-                                            />
-                                            <Button
-                                                onClick={handleEmailLogin}
-                                                disabled={emailLoading}
-                                                className="shrink-0"
-                                            >
-                                                {emailLoading ? (
-                                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                ) : (
-                                                    <Mail className="w-4 h-4" />
-                                                )}
-                                            </Button>
-                                        </div>
-                                        {emailError && (
-                                            <p className="text-xs text-red-500 flex items-center gap-1">
-                                                <AlertCircle className="w-3 h-3" />
-                                                {emailError}
-                                            </p>
-                                        )}
+                                        <Input
+                                            type="email"
+                                            placeholder="tu@email.com"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleEmailLogin()}
+                                        />
+                                    </div>
+
+                                    {/* Password input (optional) */}
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Contraseña <span className="text-muted-foreground font-normal">(opcional)</span></label>
+                                        <Input
+                                            type="password"
+                                            placeholder="••••••••"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleEmailLogin()}
+                                        />
                                         <p className="text-xs text-muted-foreground">
-                                            Te enviaremos un link mágico para iniciar sesión sin contraseña.
+                                            {password ? 'Iniciar sesión con contraseña' : 'Deja vacío para recibir un link mágico por email'}
                                         </p>
                                     </div>
+
+                                    <Button
+                                        onClick={handleEmailLogin}
+                                        disabled={emailLoading}
+                                        className="w-full"
+                                    >
+                                        {emailLoading ? (
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        ) : password ? (
+                                            'Entrar'
+                                        ) : (
+                                            <><Mail className="w-4 h-4 mr-2" /> Enviar Link Mágico</>
+                                        )}
+                                    </Button>
+
+                                    {emailError && (
+                                        <p className="text-xs text-red-500 flex items-center gap-1">
+                                            <AlertCircle className="w-3 h-3" />
+                                            {emailError}
+                                        </p>
+                                    )}
                                 </motion.div>
                             )}
                         </AnimatePresence>

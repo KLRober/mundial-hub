@@ -40,6 +40,9 @@ export default function ProdePage() {
     const [playoffPredictions, setPlayoffPredictions] = useState<PlayoffPredictions>({});
     const [savedPlayoffPredictions, setSavedPlayoffPredictions] = useState<PlayoffPredictions>({});
 
+    // Official Results
+    const [matchResults, setMatchResults] = useState<Record<string, { homeGoals: number; awayGoals: number }>>({});
+
     // Save State
     const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -63,6 +66,26 @@ export default function ProdePage() {
             setIsLoading(true);
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
+
+            // Fetch Official Results (Public)
+            const { data: results } = await supabase
+                .from('match_results')
+                .select('match_id, home_goals, away_goals')
+                .eq('match_type', 'group')
+                .eq('processed', true);
+
+            if (results) {
+                const resultsMap: Record<string, { homeGoals: number; awayGoals: number }> = {};
+                results.forEach(r => {
+                    if (r.home_goals !== null && r.away_goals !== null) {
+                        resultsMap[r.match_id] = {
+                            homeGoals: r.home_goals,
+                            awayGoals: r.away_goals
+                        };
+                    }
+                });
+                setMatchResults(resultsMap);
+            }
 
             if (user) {
                 // Load from Supabase
@@ -97,6 +120,58 @@ export default function ProdePage() {
             isInitialLoadRef.current = false;
         }
         loadData();
+
+        // Subscribe to real-time changes for match_results
+        const channel = supabase
+            .channel('public:match_results')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'match_results'
+                },
+                (payload) => {
+                    // Update matchResults state based on event
+                    if (payload.eventType === 'DELETE') {
+                        // Since we may not have the match_id in the old record (unless replica identity is full),
+                        // and we key by match_id, the safest quick fix is to remove by finding the entry 
+                        // OR just re-fetch. Given the low volume, re-fetching is safest to avoid stale state.
+                        // However, let's try to remove if we have the ID, otherwise refetch.
+                        const oldRecord = payload.old as any;
+
+                        setMatchResults(prev => {
+                            // If we have match_id, use it.
+                            if (oldRecord.match_id) {
+                                const newResults = { ...prev };
+                                delete newResults[oldRecord.match_id];
+                                return newResults;
+                            }
+                            return prev; // If no match_id, we can't optimistically update
+                        });
+
+                        // Fallback: Trigger a reload to be sure
+                        loadData();
+                    } else if ((payload.eventType === 'INSERT' || payload.eventType === 'UPDATE')) {
+                        const newRecord = payload.new as any;
+                        setMatchResults(prev => {
+                            const newResults = { ...prev };
+                            if (newRecord.match_type === 'group' && newRecord.processed) {
+                                newResults[newRecord.match_id] = {
+                                    homeGoals: newRecord.home_goals,
+                                    awayGoals: newRecord.away_goals
+                                };
+                            }
+                            return newResults;
+                        });
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
     // Clean invalid playoff predictions when qualified teams change (ghost team cleanup)
@@ -296,6 +371,7 @@ export default function ProdePage() {
                                     group={activeGroup}
                                     allPredictions={groupPredictions}
                                     onPredictionChange={handleGroupPredictionChange}
+                                    matchResults={matchResults}
                                 />
                             </motion.div>
                         ) : (

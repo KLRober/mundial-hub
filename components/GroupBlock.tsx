@@ -17,22 +17,44 @@ interface GroupBlockProps {
     group: string;
     allPredictions: GroupPredictions;
     onPredictionChange: (matchId: string, homeGoals: number | null, awayGoals: number | null) => void;
+    matchResults?: Record<string, { homeGoals: number; awayGoals: number }>;
 }
 
-export function GroupBlock({ group, allPredictions, onPredictionChange }: GroupBlockProps) {
+export function GroupBlock({ group, allPredictions, onPredictionChange, matchResults }: GroupBlockProps) {
     const teams = useMemo(() => getTeamsByGroup(group), [group]);
     const matches = useMemo(() => generateGroupMatches(group), [group]);
 
     // Calculate standings based on predictions for this group
+    // IF a match has an official result, use that for standings calculation instead of prediction?
+    // User requested "Simulator", so typically users want to see how THEIR predictions affect standings.
+    // However, if a match is finalized, it might be better to lock it to reality.
+    // Let's stick to using predictions for "Simulator" feel, BUT
+    // the SimulatorMatchCard will overwrite the displayed score if official.
+    // To make standings consistent with what is displayed in the card (official result),
+    // we should merge predictions with official results for the standings calculation.
+
+    const combinedPredictions = useMemo(() => {
+        const combined = { ...allPredictions };
+        if (matchResults) {
+            Object.entries(matchResults).forEach(([matchId, result]) => {
+                combined[matchId] = {
+                    home: result.homeGoals,
+                    away: result.awayGoals
+                };
+            });
+        }
+        return combined;
+    }, [allPredictions, matchResults]);
+
     const standings = useMemo(() => {
         const groupPredictions: GroupPredictions = {};
         matches.forEach(match => {
-            if (allPredictions[match.id]) {
-                groupPredictions[match.id] = allPredictions[match.id];
+            if (combinedPredictions[match.id]) {
+                groupPredictions[match.id] = combinedPredictions[match.id];
             }
         });
         return calculateStandings(teams, matches, groupPredictions);
-    }, [teams, matches, allPredictions]);
+    }, [teams, matches, combinedPredictions]);
 
     // Track previous standings for animations
     const [previousStandings, setPreviousStandings] = useState<TeamStanding[] | undefined>();
@@ -82,6 +104,7 @@ export function GroupBlock({ group, allPredictions, onPredictionChange }: GroupB
                                 const homeTeam = getTeamByCode(match.homeTeam);
                                 const awayTeam = getTeamByCode(match.awayTeam);
                                 const prediction = allPredictions[match.id];
+                                const officialResult = matchResults?.[match.id];
 
                                 if (!homeTeam || !awayTeam) return null;
 
@@ -94,6 +117,7 @@ export function GroupBlock({ group, allPredictions, onPredictionChange }: GroupB
                                         homeGoals={prediction?.home ?? null}
                                         awayGoals={prediction?.away ?? null}
                                         onPredictionChange={(home, away) => onPredictionChange(match.id, home, away)}
+                                        officialResult={officialResult}
                                     />
                                 );
                             })}
