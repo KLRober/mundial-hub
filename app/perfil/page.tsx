@@ -372,18 +372,16 @@ export default function PerfilPage() {
                                 </div>
                             </div>
 
-                            {/* Share Button */}
-                            {stats.rank > 0 && (
-                                <div className="mt-6 w-full">
-                                    <ShareButton
-                                        username={user.user_metadata?.full_name || 'Usuario'}
-                                        rank={stats.rank}
-                                        points={stats.points}
-                                        plenos={stats.plenos}
-                                        className="w-full"
-                                    />
-                                </div>
-                            )}
+                            {/* Share Button - Always visible for logged in users */}
+                            <div className="mt-6 w-full">
+                                <ShareButton
+                                    username={user.user_metadata?.full_name || 'Usuario'}
+                                    rank={stats.rank || 1}
+                                    points={stats.points}
+                                    plenos={stats.plenos}
+                                    className="w-full"
+                                />
+                            </div>
                         </div>
                     </Card>
 

@@ -53,31 +53,43 @@ export default function RankingPage() {
     const [demoUser, setDemoUser] = useState<RankingUser | null>(null);
 
     useEffect(() => {
-        // Check for demo mode
-        const demoUserData = localStorage.getItem('mundial-hub-demo-user');
-        const demoPoints = parseInt(localStorage.getItem('mundial-hub-demo-points') || '0');
+        let localUserId: string | null = null;
 
-        if (demoUserData) {
-            const parsed = JSON.parse(demoUserData);
-            setCurrentUserId(parsed.id);
-            if (demoPoints > 0) {
-                setDemoUser({
-                    id: parsed.id,
+        const initializeAndFetch = async () => {
+            // Check for demo mode
+            const demoUserData = localStorage.getItem('mundial-hub-demo-user');
+            const demoPoints = parseInt(localStorage.getItem('mundial-hub-demo-points') || '0');
+
+            if (demoUserData) {
+                const parsed = JSON.parse(demoUserData);
+                localUserId = parsed.id;
+                setCurrentUserId(parsed.id);
+                // Set demo user share stats
+                setCurrentUserStats({
                     username: 'Jugador Demo ⭐',
-                    avatar_url: null,
-                    puntos_totales: demoPoints,
+                    rank: 1, // Demo user is always "rank 1" for sharing
+                    points: demoPoints,
                     plenos: 0,
-                    ganadores_acertados: 0,
-                    trend: null
                 });
+                if (demoPoints > 0) {
+                    setDemoUser({
+                        id: parsed.id,
+                        username: 'Jugador Demo ⭐',
+                        avatar_url: null,
+                        puntos_totales: demoPoints,
+                        plenos: 0,
+                        ganadores_acertados: 0,
+                        trend: null
+                    });
+                }
+            } else {
+                // Get Supabase user first
+                const { data: { user } } = await supabase.auth.getUser();
+                localUserId = user?.id ?? null;
+                setCurrentUserId(localUserId);
             }
-        } else {
-            supabase.auth.getUser().then(({ data: { user } }) => {
-                setCurrentUserId(user?.id ?? null);
-            });
-        }
 
-        const fetchRanking = async () => {
+            // Now fetch ranking with known user ID
             // Fetch profiles
             const { data: profiles, error } = await supabase
                 .from('profiles')
@@ -156,20 +168,62 @@ export default function RankingPage() {
             setRanking(rankingWithStats);
             setLoading(false);
 
-            // Find current user stats for sharing
-            const currentUserData = rankingWithStats.find(u => u.id === currentUserId);
-            if (currentUserData) {
-                const userRank = rankingWithStats.findIndex(u => u.id === currentUserId) + 1;
-                setCurrentUserStats({
-                    username: currentUserData.username || 'Anónimo',
-                    rank: userRank,
-                    points: currentUserData.puntos_totales,
-                    plenos: currentUserData.plenos,
-                });
+            // Find current user stats for sharing (using localUserId captured earlier)
+            if (localUserId) {
+                const currentUserData = rankingWithStats.find(u => u.id === localUserId);
+                if (currentUserData) {
+                    // User is in the ranking
+                    const userRank = rankingWithStats.findIndex(u => u.id === localUserId) + 1;
+                    setCurrentUserStats({
+                        username: currentUserData.username || 'Anónimo',
+                        rank: userRank,
+                        points: currentUserData.puntos_totales,
+                        plenos: currentUserData.plenos,
+                    });
+                } else {
+                    // User is NOT in the ranking - fetch their profile directly
+                    const { data: userProfile } = await supabase
+                        .from('profiles')
+                        .select('username, puntos_totales')
+                        .eq('id', localUserId)
+                        .single();
+
+                    if (userProfile) {
+                        // Calculate their rank
+                        const { count } = await supabase
+                            .from('profiles')
+                            .select('*', { count: 'exact', head: true })
+                            .gt('puntos_totales', userProfile.puntos_totales || 0);
+
+                        const rank = (count || 0) + 1;
+
+                        // Get their plenos count
+                        const { data: preds } = await supabase
+                            .from('predictions')
+                            .select('puntos_ganados')
+                            .eq('user_id', localUserId)
+                            .eq('puntos_ganados', 3);
+
+                        setCurrentUserStats({
+                            username: userProfile.username || 'Anónimo',
+                            rank: rank,
+                            points: userProfile.puntos_totales || 0,
+                            plenos: preds?.length || 0,
+                        });
+                    } else {
+                        // User has no profile yet - show with defaults
+                        setCurrentUserStats({
+                            username: 'Nuevo Jugador',
+                            rank: rankingWithStats.length + 1,
+                            points: 0,
+                            plenos: 0,
+                        });
+                    }
+                }
             }
         };
 
-        fetchRanking();
+        initializeAndFetch();
     }, []);
 
     const TrendIndicator = ({ trend }: { trend: 'up' | 'down' | 'same' | null }) => {
