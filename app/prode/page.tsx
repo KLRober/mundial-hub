@@ -174,6 +174,20 @@ export default function ProdePage() {
         };
     }, []);
 
+    // Warn user before closing tab if saving or has unsaved changes
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isSaving || hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = ''; // Required for Chrome
+                return '';
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [isSaving, hasUnsavedChanges]);
+
     // Clean invalid playoff predictions when qualified teams change (ghost team cleanup)
     useEffect(() => {
         // Skip on initial load
