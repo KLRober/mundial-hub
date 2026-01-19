@@ -80,7 +80,7 @@ export function PlayoffBracket({ bracket, onPredictionChange }: PlayoffBracketPr
                                         />
 
                                         {/* Connector Lines (Desktop only) */}
-                                        {round !== 'F' && (
+                                        {round !== 'F' && round !== 'TP' && (
                                             <div className="hidden lg:block absolute top-1/2 -right-8 w-8 h-px bg-border/50">
                                                 {/* Vertical connector logic could go here for more complex visuals */}
                                             </div>

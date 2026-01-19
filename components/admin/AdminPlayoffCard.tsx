@@ -26,6 +26,7 @@ const ROUND_DISPLAY: Record<PlayoffRound, string> = {
     'R16': 'Octavos',
     'QF': 'Cuartos',
     'SF': 'Semifinal',
+    'TP': 'Tercer Puesto',
     'F': 'Final'
 };
 
@@ -120,8 +121,8 @@ export default function AdminPlayoffCard({
                         onClick={() => !isProcessed && team1Code && setSelectedWinner(team1Code)}
                         disabled={isProcessed || !team1Code}
                         className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${selectedWinner === team1Code
-                                ? 'border-grass bg-emerald-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-grass bg-emerald-50'
+                            : 'border-gray-200 hover:border-gray-300'
                             } ${isProcessed ? 'cursor-default' : 'cursor-pointer'} ${!team1Code ? 'opacity-50' : ''}`}
                     >
                         {team1Code ? (
@@ -157,8 +158,8 @@ export default function AdminPlayoffCard({
                         onClick={() => !isProcessed && team2Code && setSelectedWinner(team2Code)}
                         disabled={isProcessed || !team2Code}
                         className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${selectedWinner === team2Code
-                                ? 'border-grass bg-emerald-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-grass bg-emerald-50'
+                            : 'border-gray-200 hover:border-gray-300'
                             } ${isProcessed ? 'cursor-default' : 'cursor-pointer'} ${!team2Code ? 'opacity-50' : ''}`}
                     >
                         {team2Code ? (

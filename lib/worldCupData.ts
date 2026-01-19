@@ -100,6 +100,22 @@ export const WORLD_CUP_TEAMS: WorldCupTeam[] = [
 export const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'] as const;
 export type GroupLetter = typeof GROUPS[number];
 
+// Official Group Seeds (host/top-seeded countries)
+export const GROUP_SEEDS: Record<GroupLetter, string> = {
+    'A': 'México',
+    'B': 'Canadá',
+    'C': 'Brasil',
+    'D': 'USA',
+    'E': 'Alemania',
+    'F': 'Países Bajos',
+    'G': 'Bélgica',
+    'H': 'España',
+    'I': 'Francia',
+    'J': 'Argentina',
+    'K': 'Portugal',
+    'L': 'Inglaterra'
+};
+
 // Helper to get teams by group
 export function getTeamsByGroup(group: string): WorldCupTeam[] {
     return WORLD_CUP_TEAMS.filter(team => team.group === group);

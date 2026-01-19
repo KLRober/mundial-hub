@@ -359,22 +359,25 @@ export default function AdminPage() {
                             </Card>
 
                             {/* Playoff Rounds */}
-                            {(['R32', 'R16', 'QF', 'SF', 'F'] as PlayoffRound[]).map(round => {
+                            {(['R32', 'R16', 'QF', 'SF', 'TP', 'F'] as PlayoffRound[]).map(round => {
                                 const roundMatches = round === 'F'
                                     ? [playoffBracket.final]
-                                    : round === 'R32'
-                                        ? playoffBracket.r32
-                                        : round === 'R16'
-                                            ? playoffBracket.r16
-                                            : round === 'QF'
-                                                ? playoffBracket.qf
-                                                : playoffBracket.sf;
+                                    : round === 'TP'
+                                        ? [playoffBracket.thirdPlace]
+                                        : round === 'R32'
+                                            ? playoffBracket.r32
+                                            : round === 'R16'
+                                                ? playoffBracket.r16
+                                                : round === 'QF'
+                                                    ? playoffBracket.qf
+                                                    : playoffBracket.sf;
 
                                 const roundNames: Record<PlayoffRound, string> = {
                                     'R32': 'Dieciseisavos de Final',
                                     'R16': 'Octavos de Final',
                                     'QF': 'Cuartos de Final',
                                     'SF': 'Semifinales',
+                                    'TP': 'Tercer Puesto',
                                     'F': 'Final'
                                 };
 
