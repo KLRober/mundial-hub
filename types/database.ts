@@ -51,4 +51,7 @@ export interface LeaderboardEntry {
     total_points: number;
     correct_predictions: number;
     current_streak: number;
+    plenos: number;              // Exact score predictions (3 pts each)
+    ganadores_acertados: number; // Winner-only predictions (1 pt each)
+    trend: 'up' | 'down' | 'same' | null; // Position change indicator
 }

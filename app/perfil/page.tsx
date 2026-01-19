@@ -6,13 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Trophy, Star, Shield, LogOut, Mail, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, Trophy, Star, Shield, LogOut, Mail, Sparkles, CheckCircle2, AlertCircle, Target } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { ShareButton } from '@/components/ShareButton';
 
 export default function PerfilPage() {
     const router = useRouter();
     const [user, setUser] = useState<any>(null);
-    const [stats, setStats] = useState({ points: 0, rank: 0, hits: 0 });
+    const [stats, setStats] = useState({ points: 0, rank: 0, hits: 0, plenos: 0 });
     const [loading, setLoading] = useState(true);
 
     // Email login state
@@ -31,7 +32,7 @@ export default function PerfilPage() {
         if (demoUser) {
             setIsDemo(true);
             setUser(JSON.parse(demoUser));
-            setStats({ points: parseInt(localStorage.getItem('mundial-hub-demo-points') || '0'), rank: 0, hits: 0 });
+            setStats({ points: parseInt(localStorage.getItem('mundial-hub-demo-points') || '0'), rank: 0, hits: 0, plenos: 0 });
             setLoading(false);
             return;
         }
@@ -75,10 +76,35 @@ export default function PerfilPage() {
                 .single();
 
             if (data) {
+                // Get prediction stats
+                const { data: predictions } = await supabase
+                    .from('predictions')
+                    .select('puntos_ganados')
+                    .eq('user_id', userId)
+                    .not('puntos_ganados', 'is', null);
+
+                let plenos = 0;
+                let hits = 0;
+                if (predictions) {
+                    for (const pred of predictions) {
+                        if (pred.puntos_ganados === 3) plenos++;
+                        else if (pred.puntos_ganados === 1) hits++;
+                    }
+                }
+
+                // Get rank
+                const { count } = await supabase
+                    .from('profiles')
+                    .select('*', { count: 'exact', head: true })
+                    .gt('puntos_totales', data.puntos_totales || 0);
+
+                const rank = (count || 0) + 1;
+
                 setStats({
                     points: data.puntos_totales || 0,
-                    rank: 0,
-                    hits: 0
+                    rank,
+                    hits: plenos + hits,
+                    plenos
                 });
             }
         } catch (error) {
@@ -144,7 +170,7 @@ export default function PerfilPage() {
         localStorage.setItem('mundial-hub-demo-points', '0');
         setUser(demoUser);
         setIsDemo(true);
-        setStats({ points: 0, rank: 0, hits: 0 });
+        setStats({ points: 0, rank: 0, hits: 0, plenos: 0 });
     };
 
     const handleLogout = async () => {
@@ -153,10 +179,10 @@ export default function PerfilPage() {
             localStorage.removeItem('mundial-hub-demo-points');
             setIsDemo(false);
             setUser(null);
-            setStats({ points: 0, rank: 0, hits: 0 });
+            setStats({ points: 0, rank: 0, hits: 0, plenos: 0 });
         } else {
             await supabase.auth.signOut();
-            setStats({ points: 0, rank: 0, hits: 0 });
+            setStats({ points: 0, rank: 0, hits: 0, plenos: 0 });
         }
     };
 
@@ -340,11 +366,24 @@ export default function PerfilPage() {
                                     <span className="text-[10px] text-muted-foreground text-center">Rango</span>
                                 </div>
                                 <div className="flex flex-col items-center p-3 rounded-xl bg-background/50">
-                                    <Shield className="h-5 w-5 text-secondary mb-1" />
-                                    <span className="font-bold">{stats.hits}</span>
-                                    <span className="text-[10px] text-muted-foreground text-center">Aciertos</span>
+                                    <Target className="h-5 w-5 text-green-600 mb-1" />
+                                    <span className="font-bold">{stats.plenos}</span>
+                                    <span className="text-[10px] text-muted-foreground text-center">Plenos</span>
                                 </div>
                             </div>
+
+                            {/* Share Button */}
+                            {stats.rank > 0 && (
+                                <div className="mt-6 w-full">
+                                    <ShareButton
+                                        username={user.user_metadata?.full_name || 'Usuario'}
+                                        rank={stats.rank}
+                                        points={stats.points}
+                                        plenos={stats.plenos}
+                                        className="w-full"
+                                    />
+                                </div>
+                            )}
                         </div>
                     </Card>
 
